@@ -26,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <TRPCReactProvider>
-     <html lang="en">
+      <html lang="en" suppressHydrationWarning={true}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
