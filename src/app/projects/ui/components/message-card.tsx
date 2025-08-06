@@ -32,7 +32,7 @@ const FragmentCard = ({
     return (
         <button className={
             cn(
-                'flex item-start text-start gap-2 border rounded-lg bg-muted w-fit p-3 hover:bg-secondary transition-colors',
+                'flex items-start text-start gap-2 border rounded-lg bg-muted w-fit p-3 hover:bg-secondary transition-colors',
                 isActiveFragment &&
                 'bg-primary text-primary-foreground border-primary hover:bg-primary'
             )
@@ -61,7 +61,7 @@ const AssistantMessage = ({
 }: AssistantMessageProps) => {
     return (
         <div className={cn(
-            "flex  flex-col group px - 2 pb - 4",
+            "flex  flex-col group px-2 pb-4",
             type === 'ERROR' && 'text-red-700 dark:text-red-500'
         )}>
             <div className="flex items-center pl-2 mb-2">
@@ -73,9 +73,9 @@ const AssistantMessage = ({
                     className="shrink-0"
                 />
                 <span className="text-sm font-medium pr-2">Vibe Code</span>
-                <span className="text-sm text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"> {format(createdAt, "HH:mm 'on' MMM dd, yyy")}</span>
+                <span className="text-sm text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"> {format(createdAt, "HH:mm 'on' MMM dd, yyyy")}</span>
             </div>
-            <div className="pl-8.5 flex flex-col gap-y-4">
+            <div className="pl-8 flex flex-col gap-y-4">
                 <span className="">{content}</span>
                 {fragment && type === 'RESULT' && (
                     <FragmentCard
@@ -100,7 +100,7 @@ const UserMessage = ({
         </div>
     )
 }
-interface MessageCarfProps {
+interface MessageCardProps {
     content: string
     role: MessageRole
     fragment: Fragment | null
@@ -118,7 +118,7 @@ export const MessageCard = ({
     isActiveFragment,
     onFragmentClick,
     type
-}: MessageCarfProps) => {
+}: MessageCardProps) => {
     if (role === 'ASSISTANT') {
         return (
             <AssistantMessage
