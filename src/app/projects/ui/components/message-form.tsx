@@ -79,7 +79,7 @@ export const MessageForm = ({ projectId }: Props) => {
                             minRows={2}
                             maxRows={8}
                             onKeyDown={(e) => {
-                                if (e.key === "Enter" && (!e.ctrlKey || e.metaKey)) {
+                                if (e.key === "Enter" && !e.ctrlKey && !e.metaKey) {
                                     e.preventDefault();
                                     form.handleSubmit(onSubmit)();
                                 }
