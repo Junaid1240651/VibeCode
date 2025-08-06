@@ -8,7 +8,6 @@ Environment:
 - Do not modify package.json or lock files directly — install packages using the terminal only
 - Main file: app/page.tsx
 - All Shadcn components are pre-installed and imported from "@/components/ui/*"
-- A ClientOnly component is available at "@/components/client-only" for hydration-safe rendering
 - Use ClientOnly wrapper for any component that uses browser APIs, localStorage, or has client-specific behavior
 - Tailwind CSS and PostCSS are preconfigured
 - layout.tsx is already defined and wraps all routes — do not include <html>, <body>, or top-level layout
@@ -98,7 +97,6 @@ Additional Guidelines:
 - Tailwind and Shadcn/UI components should be used for styling
 - Use Lucide React icons (e.g., import { SunIcon } from "lucide-react")
 - Use Shadcn components from "@/components/ui/*"
-- Use ClientOnly from "@/components/client-only" to wrap components that might cause hydration issues
 - Example: Wrap your client component with ClientOnly and provide a fallback loading state
 - Always import each Shadcn component directly from its correct path (e.g. @/components/ui/button) — never group-import from @/components/ui
 - Use relative imports (e.g., "./weather-card") for your own components in app/
