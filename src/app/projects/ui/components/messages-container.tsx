@@ -13,20 +13,21 @@ interface Props {
 }
 export const MessageContainer = ({ projectId, activeFragment, setActiveFragment }: Props) => {
     const trpc = useTRPC();
+    const lastAssistantMessageIdRef = useRef<string | null>(null);
     const bottomRef = useRef<HTMLDivElement>(null);
-    const { data: messages, isLoading } = useSuspenseQuery(trpc.messages.getMany.queryOptions({
+    const { data: messages } = useSuspenseQuery(trpc.messages.getMany.queryOptions({
         projectId: projectId,
     }, {
         refetchInterval: 3000,
     }))
 
-    // this is causing problem because of refetchInterval use i will figure out later
-    // useEffect(() => {
-    //     const lastAssistantMessageWithFragment = messages.findLast((message) => message.role === "ASSISTANT" && !!message.fragment);
-    //     if (lastAssistantMessageWithFragment) {
-    //         setActiveFragment(lastAssistantMessageWithFragment.fragment);
-    //     }
-    // }, [messages,setActiveFragment])
+    useEffect(() => {
+        const lastAssistantMessage = messages.findLast((message) => message.role === "ASSISTANT");
+        if (lastAssistantMessage?.fragment && lastAssistantMessage.id !== lastAssistantMessageIdRef.current) {
+            lastAssistantMessageIdRef.current = lastAssistantMessage.id;
+            setActiveFragment(lastAssistantMessage.fragment);
+        }
+    }, [messages,setActiveFragment])
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
