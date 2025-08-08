@@ -4,13 +4,11 @@ interface Props {
 
 const Layout = ({ children }: Props) => {
     return (
-        <main className="flex flex-col min-h-screen max-h-screen">
-            <div className="absolute insert-0 -z-10 h-full bg-background 
+        <main className="min-h-screen bg-background 
             dark:bg-[radial-gradient(#393e4a_1px,transparent_1px)]
             bg-[radial-gradient(#dadde2_1px,transparent_1px)]
-            [background-size:16px_16px]"
-            />
-            <div className="flex-1 flex flex-col px-4 pb-4">
+            [background-size:16px_16px]">
+            <div className="flex flex-col px-4 pb-4">
                 {children}
             </div>
         </main>
