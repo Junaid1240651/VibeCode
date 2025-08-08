@@ -1,35 +1,35 @@
+'use client'
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { Form , FormField} from "@/components/ui/form";
+import { Form, FormField } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { ArrowUpIcon, Loader2Icon } from "lucide-react";
 import { useTRPC } from "@/trpc/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import TextareaAutosize from "react-textarea-autosize";
-
-interface  Props {
-    projectId: string;
-}
+import { PROJECT_TEMPLATES } from "@/app/(home)/constants";
 
 const formSchema = z.object({
     value: z.string().min(1, { message: "Prompt is required" })
-        .max(10000, { message: "Prompt is too long" }),
-    projectId: z.string().min(1, { message: "Project ID is required" })
+        .max(10000, { message: "Prompt is too long" })
 })
 
-export const MessageForm = ({ projectId }: Props) => {
+export const ProjectForm = () => {
     const trpc = useTRPC();
+    const router = useRouter()
     const queryclient = useQueryClient()
-    const createMessage = useMutation(trpc.messages.create.mutationOptions({
-        onSuccess: () => {
-            form.reset();
+    const createProject = useMutation(trpc.projects.create.mutationOptions({
+        onSuccess: (data) => {
             queryclient.invalidateQueries(
-                trpc.messages.getMany.queryOptions({ projectId })
+                trpc.projects.getMany.queryOptions()
             );
+            router.push(`/projects/${data.id}`)
+            form.reset();
         },
         onError: (error) => {
             toast.error(error.message);
@@ -37,33 +37,40 @@ export const MessageForm = ({ projectId }: Props) => {
     }))
 
     const [isFocused, setIsFocused] = useState(false);
-    const isPending = createMessage.isPending;
+    const isPending = createProject.isPending;
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             value: "",
-            projectId: projectId
         }
     });
     const watchedValue = form.watch("value");
     const isBtnDisabled = isPending || !watchedValue || watchedValue.trim().length === 0;
-    const showUsage = false
-    
+
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        await createMessage.mutateAsync({
+        await createProject.mutateAsync({
             value: values.value,
-            projectId
         });
     }
+
+    const onSelect = (value: string) => {
+        form.setValue("value", value, {
+            shouldValidate: true,
+            shouldDirty: true,
+            shouldTouch: true
+        });
+
+    }
+
     return (
         <Form {...form}>
+            <section className="space-y-6">
             <form
                 onSubmit={form.handleSubmit((onSubmit))}
                 className={cn(
                     'relative border p-4 pt-1 rounded-xl bg-sidebar dark:bg-sidebar transition-all',
                     isFocused && 'shadow-xs',
-                    showUsage && 'rounded-t-none'
                 )}
             >
                 <FormField
@@ -111,6 +118,21 @@ export const MessageForm = ({ projectId }: Props) => {
                     </Button>
                 </div>
             </form>
+            <div className="flex-wrap justify-center gap-2 hidden md:flex max-w-3xl">
+                {PROJECT_TEMPLATES.map((template) => (
+                    <Button
+                        key={template.title}
+                        variant="outline"
+                        size="sm"
+                        className="bg-white dark:bg-sidebar"
+                        onClick={() => onSelect(template.prompt)}
+                    >
+                        { template.emoji }{template.title}
+                    </Button>
+                ))
+                }
+                </div>
+            </section>
         </Form>
     );
 };
