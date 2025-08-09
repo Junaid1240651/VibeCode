@@ -1,3 +1,5 @@
+import { Navbar } from "@/modules/home/ui/components/navbar";
+
 interface Props {
     children: React.ReactNode;
 }
@@ -8,6 +10,7 @@ const Layout = ({ children }: Props) => {
             dark:bg-[radial-gradient(#393e4a_1px,transparent_1px)]
             bg-[radial-gradient(#dadde2_1px,transparent_1px)]
             [background-size:16px_16px]">
+            <Navbar/>  
             <div className="flex flex-col px-4 pb-4">
                 {children}
             </div>
