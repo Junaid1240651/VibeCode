@@ -13,6 +13,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import TextareaAutosize from "react-textarea-autosize";
 import { PROJECT_TEMPLATES } from "@/app/(home)/constants";
+import { useClerk } from "@clerk/nextjs";
 
 const formSchema = z.object({
     value: z.string().min(1, { message: "Prompt is required" })
@@ -23,6 +24,7 @@ export const ProjectForm = () => {
     const trpc = useTRPC();
     const router = useRouter()
     const queryclient = useQueryClient()
+    const clerk = useClerk();
     const createProject = useMutation(trpc.projects.create.mutationOptions({
         onSuccess: (data) => {
             queryclient.invalidateQueries(
@@ -33,6 +35,9 @@ export const ProjectForm = () => {
         },
         onError: (error) => {
             toast.error(error.message);
+            if (error?.message.includes("Unauthorized")) {
+                clerk.openSignIn();
+            }
         }
     }))
 
