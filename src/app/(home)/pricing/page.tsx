@@ -16,7 +16,7 @@ const Page = () => {
             alt="Vibe Code"
             width={500}
             height={100}
-            className="hidden ms:block"
+            className="hidden md:block"
           />
         </div>
         <h1 className="text-xl md:text-3xl font-bold text-center">Pricing</h1>

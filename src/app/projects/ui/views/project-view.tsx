@@ -23,8 +23,8 @@ interface Props {
 export const ProjectView = ({ projectId }: Props) => {
   const [activeFragment, setActiveFragment] = useState<Fragment | null>(null);
   const [tabState, setTabState] = useState<"preview" | "code">("preview");
-  const { has } = useAuth();
-  const hasProAccess = has?.({ plan: "pro" });
+    const { has, isLoaded } = useAuth();
+    const hasProAccess = isLoaded ? has?.({ plan: "pro" }) ?? false : false;
   return (
     <div className="h-screen">
       <ResizablePanelGroup direction="horizontal">
@@ -57,7 +57,7 @@ export const ProjectView = ({ projectId }: Props) => {
             onValueChange={(value) => setTabState(value as "preview" | "code")}
           >
             <div className="w-full flex items-center p-2 border-b gap-x-2">
-              <TabsList className="h-8 p-0 border rounder-md">
+              <TabsList className="h-8 p-0 border rounded-md">
                 <TabsTrigger value="preview" className="rounded-md">
                   <EyeIcon /> <span>Demo</span>
                 </TabsTrigger>
