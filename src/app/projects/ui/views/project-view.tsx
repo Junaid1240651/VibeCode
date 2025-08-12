@@ -16,15 +16,15 @@ import Link from "next/link";
 import { FileExplorer } from "@/components/file-explorer";
 import { UserControl } from "@/components/user-control";
 import { useAuth } from "@clerk/nextjs";
-
+import { ErrorBoundary } from "react-error-boundary";
 interface Props {
   projectId: string;
 }
 export const ProjectView = ({ projectId }: Props) => {
   const [activeFragment, setActiveFragment] = useState<Fragment | null>(null);
   const [tabState, setTabState] = useState<"preview" | "code">("preview");
-    const { has, isLoaded } = useAuth();
-    const hasProAccess = isLoaded ? has?.({ plan: "pro" }) ?? false : false;
+  const { has, isLoaded } = useAuth();
+  const hasProAccess = isLoaded ? has?.({ plan: "pro" }) ?? false : false;
   return (
     <div className="h-screen">
       <ResizablePanelGroup direction="horizontal">
@@ -33,16 +33,20 @@ export const ProjectView = ({ projectId }: Props) => {
           minSize={25}
           className="flex flex-col min-h-0"
         >
-          <Suspense fallback={<div>Loading...</div>}>
-            <ProjectHeader projectId={projectId} />
-          </Suspense>
-          <Suspense fallback={<div>Loading...</div>}>
-            <MessageContainer
-              projectId={projectId}
-              activeFragment={activeFragment}
-              setActiveFragment={setActiveFragment}
-            />
-          </Suspense>
+          <ErrorBoundary fallback={<div>Project header error</div>}>
+            <Suspense fallback={<div>Loading...</div>}>
+              <ProjectHeader projectId={projectId} />
+            </Suspense>
+          </ErrorBoundary>
+          <ErrorBoundary fallback={<div>Message container error</div>}>
+            <Suspense fallback={<div>Loading...</div>}>
+              <MessageContainer
+                projectId={projectId}
+                activeFragment={activeFragment}
+                setActiveFragment={setActiveFragment}
+              />
+            </Suspense>
+          </ErrorBoundary>
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel
