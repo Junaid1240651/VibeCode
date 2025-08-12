@@ -10,7 +10,11 @@ import {
   createState,
 } from "@inngest/agent-kit";
 import { Sandbox } from "@e2b/code-interpreter";
-import { getSandBox, lastAssistantTexMessageContent, parseAgentOutput } from "./utils";
+import {
+  getSandBox,
+  lastAssistantTextMessageContent,
+  parseAgentOutput,
+} from "./utils";
 import { FRAGMENT_TITLE_PROMPT, PROMPT, RESPONSE_PROMPT } from "@/prompt";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
@@ -21,10 +25,9 @@ interface AgentState {
   files: { [path: string]: string };
 }
 
-const endpoint =
-  "https://jk124-me7hp5up-swedencentral.cognitiveservices.azure.com/";
-const deployment = "gpt-4.1";
-const apiVersion = "2024-04-01-preview";
+const endpoint = process.env.AZURE_OPENAI_ENDPOINT!;
+const deployment = process.env.AZURE_OPENAI_DEPLOYMENT!;
+const apiVersion = process.env.AZURE_OPENAI_API_VERSION ?? "2024-04-01-preview";
 
 // Function to sanitize content for PostgreSQL
 function sanitizeContent(content: string): string {
@@ -56,8 +59,8 @@ export const codeAgentFunction = inngest.createFunction(
           },
           orderBy: {
             createdAt: "desc",
-            },
-          take: 5
+          },
+          take: 10,
         });
         for (const message of messages) {
           formattedMessages.push({
@@ -204,9 +207,8 @@ export const codeAgentFunction = inngest.createFunction(
       ],
       lifecycle: {
         onResponse: async ({ result, network }) => {
-          const lastAssistantTextMessage = await lastAssistantTexMessageContent(
-            result
-          );
+          const lastAssistantTextMessage =
+            await lastAssistantTextMessageContent(result);
           if (lastAssistantTextMessage && network) {
             if (lastAssistantTextMessage.includes("<task_summary>")) {
               network.state.data.summary = lastAssistantTextMessage;
@@ -232,13 +234,13 @@ export const codeAgentFunction = inngest.createFunction(
     const result = await network.run(event.data.value, { state });
     const fragmentTitleGenerator = createAgent({
       name: "fragment-title-genertator",
-        description: "A fragment title generator",
+      description: "A fragment title generator",
       model: gemini({ model: "gemini-2.0-flash-lite" }),
       system: FRAGMENT_TITLE_PROMPT,
     });
     const fresponseGenerator = createAgent({
       name: "response-genertator",
-        description: "A response generator",
+      description: "A response generator",
       model: gemini({ model: "gemini-2.0-flash-lite" }),
       system: RESPONSE_PROMPT,
     });

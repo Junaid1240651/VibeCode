@@ -8,7 +8,7 @@ export const getSandBox = async (sandBoxId: string) => {
   return sandBox;
 };
 
-export const lastAssistantTexMessageContent = async (result: AgentResult) => {
+export const lastAssistantTextMessageContent = async (result: AgentResult) => {
   const lastAssistantTexMessageIndex = result.output.findLastIndex(
     (message) => message.role === "assistant" && message.type === "text"
   );
