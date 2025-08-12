@@ -15,10 +15,11 @@ export const Usage = ({ points, msBeforeNext }: Props) => {
     const hasProAccess = isLoaded ? has?.({ plan: "pro" }) ?? false : false;
     const resetTime = useMemo(() => {
         try {
+            const ms = Math.max(0, msBeforeNext);
             return formatDuration(
                 intervalToDuration({
                     start: new Date(),
-                    end: new Date(Date.now() + msBeforeNext),
+                    end: new Date(Date.now() + ms),
                 }),
                 { format: ["months", "days", "hours"] }
             );
