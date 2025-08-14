@@ -20,6 +20,28 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { SANDBOX_TIMEOUT } from "./types";
 
+// Common function to get existing files from the latest fragment
+async function getExistingFiles(
+  projectId: string
+): Promise<{ [path: string]: string }> {
+  const existingFragment = await prisma.fragment.findFirst({
+    where: {
+      message: {
+        projectId: projectId,
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return existingFragment?.files
+    ? typeof existingFragment.files === "object"
+      ? (existingFragment.files as { [path: string]: string })
+      : {}
+    : {};
+}
+
 interface AgentState {
   summary: string;
   files: { [path: string]: string };
@@ -44,8 +66,24 @@ export const codeAgentFunction = inngest.createFunction(
   { event: "code-agent/run" },
   async ({ event, step }) => {
     const sandBoxId = await step.run("get-sandbox-id", async () => {
+      // Always create a new sandbox
       const sandbox = await Sandbox.create("dnym8armtb5iub9mmtbp");
-      await sandbox.setTimeout(SANDBOX_TIMEOUT)
+      await sandbox.setTimeout(SANDBOX_TIMEOUT);
+
+      // Get existing files using the common function
+      const existingFiles = await getExistingFiles(event.data.projectId);
+
+      // Copy existing files to the new sandbox
+      if (Object.keys(existingFiles).length > 0) {
+        
+        for (const [filePath, fileContent] of Object.entries(existingFiles)) {
+          try {
+            await sandbox.files.write(filePath, fileContent);
+          } catch (error) {
+            console.error(`Failed to copy file ${filePath}:`, error);
+          }
+        }
+      }
       return sandbox.sandboxId;
     });
 
@@ -60,7 +98,8 @@ export const codeAgentFunction = inngest.createFunction(
           orderBy: {
             createdAt: "desc",
           },
-          take: 10,
+        //   take: 10,
+        //for context msg length
         });
         for (const message of messages) {
           formattedMessages.push({
@@ -73,10 +112,15 @@ export const codeAgentFunction = inngest.createFunction(
       }
     );
 
+    const existingFiles = await step.run("get-existing-files", async () => {
+      // Use the common function to get existing files
+      return await getExistingFiles(event.data.projectId);
+    });
+
     const state = createState<AgentState>(
       {
         summary: "",
-        files: {},
+        files: existingFiles,
       },
       {
         messages: previousMessage,
@@ -238,7 +282,7 @@ export const codeAgentFunction = inngest.createFunction(
       model: gemini({ model: "gemini-2.0-flash-lite" }),
       system: FRAGMENT_TITLE_PROMPT,
     });
-    const fresponseGenerator = createAgent({
+    const responseGenerator = createAgent({
       name: "response-genertator",
       description: "A response generator",
       model: gemini({ model: "gemini-2.0-flash-lite" }),
@@ -248,7 +292,7 @@ export const codeAgentFunction = inngest.createFunction(
     const { output: fragmentTitleOutput } = await fragmentTitleGenerator.run(
       result.state.data.summary
     );
-    const { output: responseOutput } = await fresponseGenerator.run(
+    const { output: responseOutput } = await responseGenerator.run(
       result.state.data.summary
     );
 
