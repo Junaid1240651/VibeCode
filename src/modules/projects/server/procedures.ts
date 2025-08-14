@@ -5,6 +5,7 @@ import z from "zod";
 import { generateSlug } from "random-word-slugs";
 import { TRPCError } from "@trpc/server";
 import { consumeCredits } from "@/lib/usage";
+import { generateProjectName } from "@/lib/project-name-generator";
 
 export const projectRouter = createTRPCRouter({
   getOne: protectedProcedure
@@ -64,12 +65,21 @@ export const projectRouter = createTRPCRouter({
           });
         }
       }
+      // Generate project name based on user prompt
+      let projectName: string;
+      try {
+        projectName = await generateProjectName(input.value);
+      } catch (error) {
+        console.error('Failed to generate AI project name, falling back to random:', error);
+        projectName = generateSlug(2, {
+          format: "kebab",
+        });
+      }
+
       const createProject = await prisma.project.create({
         data: {
           userId: ctx.auth.userId,
-          name: generateSlug(2, {
-            format: "kebab",
-          }),
+          name: projectName,
           messages: {
             create: {
               content: input.value,

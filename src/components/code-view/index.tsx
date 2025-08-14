@@ -14,7 +14,7 @@ export const CodeView = ({ code, lang }: Props) => {
 
     useEffect(() => {
         Prism.highlightAll()
-    }, [])
+    }, [code, lang])
 
     return (
         <pre className="p-2 bg-transparent border-none rounded-none m-0 text-xs">
