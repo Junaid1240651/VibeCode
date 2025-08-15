@@ -50,6 +50,10 @@ return (
                             isActiveFragment={activeFragment?.id === message.fragment?.id}
                             onFragmentClick={() => setActiveFragment(message.fragment)}
                             type={message.type}
+                            images={[
+                                ...(Array.isArray(message.images) ? message.images.filter(i => typeof i === "string") : []),
+                                ...(Array.isArray(message.fragment?.files) ? message.fragment.files.filter(i => typeof i === "string") : [])
+                            ]}
                         />
                     ))}
                 {isLastMessageFromUser && <MessageLoading/>}
