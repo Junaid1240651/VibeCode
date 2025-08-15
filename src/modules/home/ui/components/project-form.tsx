@@ -91,18 +91,22 @@ export const ProjectForm = () => {
     );
 
     const handleImageRemove = (index: number) => {
-        // Remove from both the form state and the display state
-        removeImageFromForm(form, index);
-        // Also remove from the uploadedImages state for proper display update
-        // Use the removeImage function from the hook which handles both states
-        removeImage(index, () => {
-            // This callback is called after the image is removed from uploadedImages
-            // The form state is already updated above
+        // Get the preview URL from the display array
+        const previewUrl = uploadedImages[index];
+        if (!previewUrl) return;
+        
+        // Revoke URL from paste hook if it was created there
+        revokePasteUrl(previewUrl);
+        
+        // Remove using the preview URL to ensure correct URL revocation
+        removeImage(previewUrl, ({ index: removedIndex }) => {
+            // Remove from form state using the correct index
+            removeImageFromForm(form, removedIndex);
         });
     };
 
     // Use the reusable image paste hook
-    useImagePaste({
+    const { revokeUrl: revokePasteUrl, cleanupUrls: cleanupPasteUrls } = useImagePaste({
         textareaRef,
         onImagePaste: handleImageAdd,
         currentImageCount: uploadedImages.length,
@@ -172,7 +176,7 @@ export const ProjectForm = () => {
                             {...field}
                             ref={textareaRef}
                             disabled={isPending || isUploading}
-                            className="pt-4 resize-none border-none w-full outline-none bg-transparent min-h-[80px] max-h-[200px] overflow-y-auto"
+                            className="pt-4 resize-none border-none w-full outline-none bg-transparent min-h-[80px] max-h-[200px] overflow-y-auto scrollbar-hide"
                             placeholder="What would you like to build?"
                             onFocus={() => setIsFocused(true)}
                             onBlur={() => setIsFocused(false)}
@@ -241,18 +245,20 @@ export const ProjectForm = () => {
                             &nbsp;to submit
                         </div>
                     </div>
-                    <Button className={
-                        cn(
-                            "size-8 rounded-full",
-                            isBtnDisabled && 'bg-muted-foreground border'
-                        )
-                    }
+                    <Button 
+                        className={
+                            cn(
+                                "size-8 rounded-full transition-all duration-200",
+                                isBtnDisabled && !isPending && !isUploading && 'bg-muted-foreground border',
+                                (isPending || isUploading) && 'bg-primary hover:bg-primary cursor-not-allowed'
+                            )
+                        }
                         disabled={isBtnDisabled}
                     >
                         {isPending || isUploading ? (
                             <Loader2Icon className="size-4 animate-spin" />
                         ) : (
-                            <ArrowUpIcon />
+                            <ArrowUpIcon className="size-4" />
                         )}
                     </Button>
                 </div>

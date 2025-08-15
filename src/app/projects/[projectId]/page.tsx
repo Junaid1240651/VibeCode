@@ -3,6 +3,7 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { ProjectView } from "../ui/views/project-view";
 import { Suspense } from "react";
 import { ErrorBoundary } from 'react-error-boundary'
+import { ProjectLoading } from "@/components/project-loading";
 interface Props {
     params: Promise<{
         projectId: string
@@ -17,7 +18,7 @@ const page = async ({ params }: Props) => {
     return (
         <HydrationBoundary state={dehydrate(queryclient)}>
             <ErrorBoundary fallback={<div>ProjectView error</div>}>
-                <Suspense fallback={<div>Loading...</div>}>
+                <Suspense fallback={<ProjectLoading />}>
                     <ProjectView projectId={projectId} />
                 </Suspense>
             </ErrorBoundary>

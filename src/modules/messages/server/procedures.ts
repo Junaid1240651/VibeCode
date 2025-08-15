@@ -73,7 +73,7 @@ export const messageRouter = createTRPCRouter({
         data: {
           projectId: existingProject.id,
           content: input.value,
-          images: input.images || {},
+          images: input.images || [],
           role: "USER",
           type: "RESULT",
         },
