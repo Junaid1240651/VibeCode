@@ -82,13 +82,61 @@ export const ProjectView = ({ projectId }: Props) => {
               </div>
             </div>
             <TabsContent value="preview">
-              {!!activeFragment && <FragmentWeb data={activeFragment} />}
+              {!!activeFragment ? (
+                <FragmentWeb data={activeFragment} />
+              ) : (
+                <div className="flex items-center justify-center h-full bg-muted/10">
+                  <div className="flex flex-col items-center gap-4 text-center max-w-md px-6">
+                    <div className="relative">
+                      <div className="w-16 h-16 border-4 border-muted rounded-full animate-spin border-t-primary"></div>
+                      <div className="absolute inset-0 w-16 h-16 border-4 border-transparent rounded-full animate-pulse border-t-primary/30"></div>
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-semibold text-foreground">Generating Preview</h3>
+                      <p className="text-sm text-muted-foreground">
+                        AI is creating your project. This usually takes 30-60 seconds.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <div className="flex gap-1">
+                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
+                      </div>
+                      <span>Setting up sandbox environment</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </TabsContent>
             <TabsContent value="code" className="min-h-0">
-              {!!activeFragment?.files && (
+              {!!activeFragment?.files ? (
                 <FileExplorer
                   files={activeFragment.files as { [path: string]: string }}
                 />
+              ) : (
+                <div className="flex items-center justify-center h-full bg-muted/10">
+                  <div className="flex flex-col items-center gap-4 text-center max-w-md px-6">
+                    <div className="relative">
+                      <div className="w-16 h-16 border-4 border-muted rounded-full animate-spin border-t-primary"></div>
+                      <div className="absolute inset-0 w-16 h-16 border-4 border-transparent rounded-full animate-pulse border-t-primary/30"></div>
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-semibold text-foreground">Generating Code</h3>
+                      <p className="text-sm text-muted-foreground">
+                        AI is writing your project files. This usually takes 30-60 seconds.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <div className="flex gap-1">
+                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
+                      </div>
+                      <span>Writing project files</span>
+                    </div>
+                  </div>
+                </div>
               )}
             </TabsContent>
           </Tabs>

@@ -47,6 +47,7 @@ export const projectRouter = createTRPCRouter({
           .string()
           .min(1, { message: "Prompt is required" })
           .max(10000, { message: "Prompt is too long" }),
+        images: z.array(z.string()).optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -69,8 +70,7 @@ export const projectRouter = createTRPCRouter({
       let projectName: string;
       try {
         projectName = await generateProjectName(input.value);
-      } catch (error) {
-        console.error('Failed to generate AI project name, falling back to random:', error);
+      } catch {
         projectName = generateSlug(2, {
           format: "kebab",
         });
@@ -83,6 +83,7 @@ export const projectRouter = createTRPCRouter({
           messages: {
             create: {
               content: input.value,
+              images: input.images || {},
               role: "USER",
               type: "RESULT",
             },
@@ -94,6 +95,7 @@ export const projectRouter = createTRPCRouter({
         data: {
           value: input.value,
           projectId: createProject.id,
+          images: input.images,
         },
       });
       return createProject;

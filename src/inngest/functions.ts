@@ -275,7 +275,21 @@ export const codeAgentFunction = inngest.createFunction(
         return codeAgent;
       },
     });
-    const result = await network.run(event.data.value, { state });
+    // Prepare the input with text and images (now using URLs instead of base64)
+    const userInput =
+      event.data.images && event.data.images.length > 0
+        ? [
+            { type: "text", content: event.data.value },
+            ...event.data.images.map((imageUrl: string) => ({
+              type: "image_url",
+              image_url: {
+                url: imageUrl, // Now using Azure Blob Storage URLs
+              },
+            })),
+          ]
+        : event.data.value;
+
+    const result = await network.run(userInput, { state });
     const fragmentTitleGenerator = createAgent({
       name: "fragment-title-genertator",
       description: "A fragment title generator",

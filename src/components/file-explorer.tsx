@@ -55,8 +55,6 @@ const FileBreakcrumb = ({ filePath }: FileBreakcrumbProps) => {
     } else {
       const firstSegments = pathSegments[0];
       const lastSegments = pathSegments[pathSegments.length - 1];
-        console.log(firstSegments);
-        console.log(lastSegments);
         
       return (
         <>
@@ -99,8 +97,6 @@ export const FileExplorer = ({ files }: FileExplorerProps) => {
 
   const handlefileSelect = useCallback(
     (filePath: string) => {
-      console.log(filePath);
-
       if (files[filePath]) {
         setSelectedFile(filePath);
       }

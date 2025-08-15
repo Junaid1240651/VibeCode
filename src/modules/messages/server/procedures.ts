@@ -37,6 +37,7 @@ export const messageRouter = createTRPCRouter({
           .min(1, { message: "Prompt is required" })
           .max(10000, { message: "Prompt is too long" }),
         projectId: z.string().min(1, { message: "Project ID is required" }),
+        images: z.array(z.string()).optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -72,6 +73,7 @@ export const messageRouter = createTRPCRouter({
         data: {
           projectId: existingProject.id,
           content: input.value,
+          images: input.images || {},
           role: "USER",
           type: "RESULT",
         },
@@ -82,6 +84,7 @@ export const messageRouter = createTRPCRouter({
         data: {
           value: input.value,
           projectId: input.projectId,
+          images: input.images,
         },
       });
       return createdMsg;
