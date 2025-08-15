@@ -1,4 +1,4 @@
-import { useCallback, useEffect, RefObject } from 'react';
+import { useCallback, useEffect, RefObject, useRef } from 'react';
 import { toast } from 'sonner';
 import { ImageData } from './useImageUpload';
 
@@ -10,6 +10,25 @@ interface UseImagePasteProps {
 }
 
 export const useImagePaste = ({ textareaRef, onImagePaste, currentImageCount, maxImages }: UseImagePasteProps) => {
+  // Track created blob URLs for cleanup
+  const createdUrlsRef = useRef<Set<string>>(new Set());
+  
+  // Cleanup function to revoke all tracked URLs
+  const cleanupUrls = useCallback(() => {
+    createdUrlsRef.current.forEach(url => {
+      URL.revokeObjectURL(url);
+    });
+    createdUrlsRef.current.clear();
+  }, []);
+  
+  // Function to revoke a specific URL
+  const revokeUrl = useCallback((url: string) => {
+    if (createdUrlsRef.current.has(url)) {
+      URL.revokeObjectURL(url);
+      createdUrlsRef.current.delete(url);
+    }
+  }, []);
+
   const handlePaste = useCallback((e: ClipboardEvent) => {
     if (!e.clipboardData) return;
 
@@ -48,9 +67,14 @@ export const useImagePaste = ({ textareaRef, onImagePaste, currentImageCount, ma
 
     // Process the allowed images
     imagesToProcess.forEach(file => {
+      const previewUrl = URL.createObjectURL(file);
+      
+      // Track the created URL for cleanup
+      createdUrlsRef.current.add(previewUrl);
+      
       const imageData: ImageData = {
         file,
-        previewUrl: URL.createObjectURL(file),
+        previewUrl,
         originalName: file.name || "pasted-image"
       };
       onImagePaste(imageData);
@@ -71,5 +95,16 @@ export const useImagePaste = ({ textareaRef, onImagePaste, currentImageCount, ma
     };
   }, [handlePaste, textareaRef]);
 
-  return { handlePaste };
+  // Cleanup all tracked URLs on unmount
+  useEffect(() => {
+    return () => {
+      cleanupUrls();
+    };
+  }, [cleanupUrls]);
+
+  return { 
+    handlePaste,
+    revokeUrl,
+    cleanupUrls
+  };
 };

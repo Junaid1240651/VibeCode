@@ -71,22 +71,28 @@ export const useImageUpload = (maxImages: number = 3) => {
   };
 
   const removeImage = (
-    index: number,
-    onImageRemove: (index: number) => void
+    previewUrl: string,
+    onImageRemove: (removedImageData: { index: number; previewUrl: string }) => void
   ) => {
-    const currentImages = uploadedImages;
+    // Find the index of the image to remove
+    const index = uploadedImages.findIndex(url => url === previewUrl);
     
-    // Revoke the preview URL to free memory
-    if (currentImages[index]) {
-      URL.revokeObjectURL(currentImages[index]);
+    if (index === -1) {
+      console.warn('Image not found in uploadedImages:', previewUrl);
+      return;
+    }
+    
+    // Revoke the exact preview URL to free memory
+    if (previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(previewUrl);
     }
     
     // Remove from images array
-    const newImages = currentImages.filter((_, i) => i !== index);
+    const newImages = uploadedImages.filter((_, i) => i !== index);
     setUploadedImages(newImages);
     
-    // Call the callback to handle form-specific removal
-    onImageRemove(index);
+    // Call the callback with both index and URL for form handling
+    onImageRemove({ index, previewUrl });
   };
 
   const uploadImagesToAzure = async (imageFiles: ImageData[]): Promise<string[]> => {

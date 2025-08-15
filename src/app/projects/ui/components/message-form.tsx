@@ -95,7 +95,7 @@ export const MessageForm = ({ projectId }: Props) => {
   );
 
   // Use the reusable image paste hook
-  useImagePaste({
+  const { revokeUrl: revokePasteUrl } = useImagePaste({
     textareaRef,
     onImagePaste: handleImageAdd,
     currentImageCount: uploadedImages.length,
@@ -104,12 +104,17 @@ export const MessageForm = ({ projectId }: Props) => {
 
   // Remove image from form state when deleted
   const handleImageRemove = (index: number) => {
-    // Remove from both the form state and the display state
-    removeImageFromForm(form, index);
-    // Also remove from the uploadedImages state for proper display update
-    removeImage(index, () => {
-      // This callback is called after the image is removed from uploadedImages
-      // The form state is already updated above
+    // Get the preview URL from the display array
+    const previewUrl = uploadedImages[index];
+    if (!previewUrl) return;
+
+    // Revoke URL from paste hook if it was created there
+    revokePasteUrl(previewUrl);
+
+    // Remove using the preview URL to ensure correct URL revocation
+    removeImage(previewUrl, ({ index: removedIndex }) => {
+      // Remove from form state using the correct index
+      removeImageFromForm(form, removedIndex);
     });
   };
 
@@ -151,7 +156,7 @@ export const MessageForm = ({ projectId }: Props) => {
               {...field}
               ref={textareaRef}
               disabled={isPending || isUploading}
-              className="pt-4 resize-none border-none w-full outline-none bg-transparent min-h-[80px] max-h-[200px] overflow-y-auto"
+              className="pt-4 resize-none border-none w-full outline-none bg-transparent min-h-[80px] max-h-[200px] overflow-y-auto scrollbar-hide"
               placeholder="What would you like to build?"
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
@@ -201,8 +206,8 @@ export const MessageForm = ({ projectId }: Props) => {
               disabled={isPending || isUploading || uploadedImages.length >= 3}
               title={
                 isUploading ? "Uploading images..." :
-                uploadedImages.length >= 3 ? "Maximum 3 images reached" : 
-                "Upload images"
+                  uploadedImages.length >= 3 ? "Maximum 3 images reached" :
+                    "Upload images"
               }
             >
               <PaperclipIcon className="h-4 w-4" />
