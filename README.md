@@ -129,10 +129,6 @@ npx prisma db push
 npx prisma studio
 ```
 
-## � License
-
-MIT License - see [LICENSE](LICENSE) file for details.
-
 ---
 
 **VibeCode** - Transform your ideas into code with AI.
