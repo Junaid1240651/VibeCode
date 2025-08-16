@@ -1,5 +1,28 @@
+/**
+ * tRPC Client Configuration
+ * 
+ * Sets up the client-side tRPC integration with React Query for the VibeCode
+ * application. Provides type-safe API calls, caching, and state management
+ * for all server-side procedures.
+ * 
+ * Key Features:
+ * - Type-safe API calls with full TypeScript inference
+ * - React Query integration for caching and background updates
+ * - HTTP batching for improved performance
+ * - SuperJSON transformation for rich data types
+ * - SSR/client hydration handling
+ * - Singleton pattern for browser query client
+ * 
+ * Architecture:
+ * - TRPCReactProvider wraps the app with necessary providers
+ * - Query client is shared between server and client
+ * - HTTP batch link optimizes multiple requests
+ * - URL resolution handles both development and production
+ */
+
 'use client';
-// ^-- to make sure we can mount the Provider from a server component
+// ^-- Ensures this runs on client-side for Provider mounting from server components
+
 import type { QueryClient } from '@tanstack/react-query';
 import superjson from 'superjson';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -8,47 +31,106 @@ import { createTRPCContext } from '@trpc/tanstack-react-query';
 import { useState } from 'react';
 import { makeQueryClient } from './query-client';
 import type { AppRouter } from './routers/_app';
+
+/**
+ * Create tRPC React hooks and provider
+ * 
+ * Generates type-safe hooks for all API routes:
+ * - useTRPC.projects.getMany.useQuery()
+ * - useTRPC.messages.create.useMutation()
+ * - etc.
+ */
 export const { TRPCProvider, useTRPC } = createTRPCContext<AppRouter>();
+
+/**
+ * Browser-side query client singleton
+ * Prevents recreation on re-renders and maintains cache consistency
+ */
 let browserQueryClient: QueryClient;
+
+/**
+ * Gets or creates a React Query client
+ * 
+ * Handles the server/client split for React Query:
+ * - Server: Always creates new client for each request
+ * - Browser: Uses singleton to maintain cache across navigations
+ * 
+ * @returns QueryClient instance for the current environment
+ */
 function getQueryClient() {
     if (typeof window === 'undefined') {
-        // Server: always make a new query client
+        // Server: always make a new query client for each request
         return makeQueryClient();
     }
-    // Browser: make a new query client if we don't already have one
-    // This is very important, so we don't re-make a new client if React
-    // suspends during the initial render. This may not be needed if we
-    // have a suspense boundary BELOW the creation of the query client
-    if (!browserQueryClient) browserQueryClient = makeQueryClient();
+    
+    // Browser: use singleton pattern to prevent cache loss
+    // This prevents React from recreating the client during suspense
+    if (!browserQueryClient) {
+        browserQueryClient = makeQueryClient();
+    }
+    
     return browserQueryClient;
 }
+
+/**
+ * Resolves the tRPC API endpoint URL
+ * 
+ * Handles both development and production environments:
+ * - Development: Relative URL (empty base)
+ * - Production: Full URL from environment variable
+ * 
+ * @returns Complete URL to the tRPC API endpoint
+ */
 function getUrl() {
     const base = (() => {
-        if (typeof window !== 'undefined') return '';
+        if (typeof window !== 'undefined') {
+            // Browser: use relative URL
+            return '';
+        }
+        // Server: use full URL for SSR
         return process.env.NEXT_PUBLIC_APP_URL;
     })();
+    
     return `${base}/api/trpc`;
 }
+
+/**
+ * tRPC React Provider Component
+ * 
+ * Wraps the application with both React Query and tRPC providers.
+ * Configures HTTP batching, data transformation, and client setup.
+ * 
+ * Features:
+ * - HTTP batching for multiple simultaneous requests
+ * - SuperJSON transformation for Date/BigInt/etc serialization
+ * - Proper SSR/client hydration handling
+ * - Query client singleton management
+ * 
+ * @param props - Component props with children
+ * @returns Provider component wrapping children with tRPC and React Query
+ */
 export function TRPCReactProvider(
     props: Readonly<{
         children: React.ReactNode;
     }>,
 ) {
-    // NOTE: Avoid useState when initializing the query client if you don't
-    //       have a suspense boundary between this and the code that may
-    //       suspend because React will throw away the client on the initial
-    //       render if it suspends and there is no boundary
+    // Get or create query client (handles server/client properly)
     const queryClient = getQueryClient();
+    
+    // Create tRPC client with batching and transformation
     const [trpcClient] = useState(() =>
         createTRPCClient<AppRouter>({
             links: [
                 httpBatchLink({
+                    // Enable SuperJSON for rich data types
                     transformer: superjson, 
+                    // API endpoint URL
                     url: getUrl(),
                 }),
             ],
         }),
     );
+    
     return (
         <QueryClientProvider client={queryClient}>
             <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>

@@ -1,3 +1,19 @@
+/**
+ * Project Templates Configuration
+ * 
+ * This file contains predefined project templates that users can select
+ * to quickly start building common types of applications.
+ * 
+ * Each template includes:
+ * - emoji: Visual identifier for the template
+ * - title: Display name for the template
+ * - prompt: Detailed AI prompt for code generation
+ */
+
+/**
+ * Array of predefined project templates
+ * These templates provide users with quick-start options for common app types
+ */
 export const PROJECT_TEMPLATES = [
     {
         emoji: "🎬",
@@ -47,4 +63,4 @@ export const PROJECT_TEMPLATES = [
         prompt:
             "Build a Spotify-style music player with a sidebar for playlists, a main area for song details, and playback controls. Use local state for managing playback and song selection. Prioritize layout balance and intuitive control placement for a smooth user experience. Use dark mode.",
     }
-] as const;
+] as const; // 'as const' ensures TypeScript treats this as a readonly tuple
