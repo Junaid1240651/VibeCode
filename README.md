@@ -135,4 +135,4 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-**VibeCode** - Transform your ideas into code with AI. Built with ❤️ using modern web technologies.
+**VibeCode** - Transform your ideas into code with AI.
