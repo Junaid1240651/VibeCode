@@ -1,6 +1,7 @@
 # VibeCode - AI-Powered Code Generation Platform
 
 Below are the some amazing output and Demo Videos
+
 1.Put your Idea in textbox
 <img width="1477" height="767" alt="image" src="https://github.com/user-attachments/assets/260606a2-9753-48d5-b6e3-899b12e7d761" />
 2.Wait for a while atleas 3-4 minutes
@@ -10,6 +11,8 @@ Below are the some amazing output and Demo Videos
 some other output examples
 <img width="1480" height="768" alt="image" src="https://github.com/user-attachments/assets/1110539d-6867-485e-ae88-c69703bf80dc" />
 <img width="1482" height="723" alt="image" src="https://github.com/user-attachments/assets/14650df7-f34e-42d6-9e3d-ad269728b01d" />
+Review the AI code as well
+<img width="1490" height="755" alt="image" src="https://github.com/user-attachments/assets/8552057d-72e6-489c-be4e-962530475d5d" />
 
 
 VibeCode is an AI-powered platform that enables users to create web applications by chatting with AI. Built with Next.js 15, TypeScript, and modern web technologies.
