@@ -17,7 +17,7 @@ import { prisma } from "./db";
 import { RateLimiterPrisma } from "rate-limiter-flexible";
 
 // Credit system configuration
-const FREE_POINT = 1;                           // Free tier credits
+const FREE_POINT = 10;                           // Free tier credits
 const PRO_POINTS = 100;                         // Pro tier credits  
 const FREE_DURATION = 30 * 24 * 60 * 60;       // 30 days in seconds
 const GENERATION_COST = 1;                      // Cost per AI generation
