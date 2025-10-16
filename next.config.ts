@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'vibecodeprojects.blob.core.windows.net'
+        hostname: 'vibecodeprojects.blob.core.windows.net',
         port: '',
         pathname: '/images/**',
       },
